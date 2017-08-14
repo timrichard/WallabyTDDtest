@@ -14,12 +14,12 @@ beforeEach(function(){
 afterEach(function(){
 });
 
-describe('bookController', function () {
+describe('bookController', () => {
     it('canary test should always return true', function () {
         expect(true).to.equal(true);
     });
 
-    describe('get method', function () {
+    describe('get method', () => {
         it('should exist', function () {
             expect(bookController).to.respondTo('get');
         });
@@ -36,12 +36,12 @@ describe('bookController', function () {
 
     });
 
-    describe('post method', function () {
+    describe('post method', () => {
         it('should exist', function () {
             expect(bookController).to.respondTo('post');
         });
 
-        it('return bad request if required body element not supplied', function () {
+        it('should return bad request if required body element not supplied', function () {
             const req = mockReq({
                 body: {
                 }
@@ -49,7 +49,8 @@ describe('bookController', function () {
             const res = mockRes();
 
             bookController.post(req, res);
-            expect(res.sendStatus).to.be.calledWith(400);
+            expect(res.sendStatus).to.be.calledWith(401);
         });
+
     });
 });
