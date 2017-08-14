@@ -1,24 +1,21 @@
-const chai = require('chai');
-chai.use(require('sinon-chai'));
-const expect = chai.expect;
+const expect = require('chai').expect;
+const httpMocks = require('node-mocks-http');
 
 const deps = {};
 const bookController = require('./bookController.js')(deps);
 
-const mockReq = require('sinon-express-mock').mockReq;
-const mockRes = require('sinon-express-mock').mockRes;
+let req, res;
 
-beforeEach(function(){
+beforeEach(function () {
+    // Request object overridden in methods if config needed beyond defaults
+    req = httpMocks.createRequest();
+    res = httpMocks.createResponse();
 });
 
-afterEach(function(){
+afterEach(function () {
 });
 
 describe('bookController', () => {
-    it('canary test should always return true', function () {
-        expect(true).to.equal(true);
-    });
-
     describe('get method', () => {
         it('should exist', function () {
             expect(bookController).to.respondTo('get');
@@ -28,12 +25,10 @@ describe('bookController', () => {
             expect(bookController).to.not.respondTo('okStatus');
         });
 
-        it('should return 200', function () {
-            const res = mockRes();
-            bookController.get(mockReq(), res);
-            expect(res.sendStatus).to.be.calledWith(200);
+        it('should return 200 in all cases', function () {
+            bookController.get(req, res);
+            expect(res.statusCode).to.equal(200);
         });
-
     });
 
     describe('post method', () => {
@@ -42,26 +37,30 @@ describe('bookController', () => {
         });
 
         it('should return bad request if required body element not supplied', function () {
-            const req = mockReq({
-                body: {
-                }
-            });
-            const res = mockRes();
-
             bookController.post(req, res);
-            expect(res.sendStatus).to.be.calledWith(401);
+            expect(res.statusCode).to.equal(400);
         });
 
         it('should return 200 OK if we supply a valid required field', function () {
-          const req = mockReq({
-              body: {
-                  requiredField: 'string'
-              }
-          });
+            req = httpMocks.createRequest({
+                body: {
+                    requiredField: 'something'
+                }
+            });
+            bookController.post(req, res);
+            expect(res.statusCode).to.equal(200);
+        });
 
-          const res = mockRes();
-          bookController.post(req, res);
-          expect(res.sendStatus).to.be.calledWith(200);
+        it('should return some diffable json if I supply the magic word', function () {
+            req = httpMocks.createRequest({
+                body: {
+                    requiredField: 'bingo'
+                }
+            });
+
+            bookController.post(req, res);
+            const responseData = JSON.parse(res._getData());
+            expect(responseData.hello).to.equal('world');
         });
 
     });
