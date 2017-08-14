@@ -52,5 +52,17 @@ describe('bookController', () => {
             expect(res.sendStatus).to.be.calledWith(401);
         });
 
+        it('should return 200 OK if we supply a valid required field', function () {
+          const req = mockReq({
+              body: {
+                  requiredField: 'string'
+              }
+          });
+
+          const res = mockRes();
+          bookController.post(req, res);
+          expect(res.sendStatus).to.be.calledWith(200);
+        });
+
     });
 });
