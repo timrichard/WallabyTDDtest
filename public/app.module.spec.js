@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
 
-describe('test', () => {
+describe('canary', () => {
     it('should always return true', () => {
         expect(true).to.equal(true);
     });

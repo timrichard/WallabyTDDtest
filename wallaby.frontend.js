@@ -1,11 +1,11 @@
 module.exports = function () {
     return {
         files: [
-            './**/*.js',
-            '!./**/*.spec.js'
+            'public/**/*.js',
+            '!public/**/*.spec.js'
         ],
         tests: [
-            './**/*.spec.js'
+            'public/**/*.spec.js'
         ],
         testFramework: 'mocha',
         env: {
