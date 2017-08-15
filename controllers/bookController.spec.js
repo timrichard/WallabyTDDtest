@@ -6,13 +6,11 @@ chai.use(sinonChai);
 const expect = chai.expect;
 const httpMocks = require('node-mocks-http');
 
-const deps = {};
-const bookController = require('./bookController.js')(deps);
-
-let req, res;
+let req, res, deps, bookController;
 
 beforeEach(function () {
-    // Request object overridden in methods if config needed beyond defaults
+    deps = {};
+    bookController = require('./bookController')(deps);
     req = httpMocks.createRequest();
     res = httpMocks.createResponse();
 });
