@@ -1,4 +1,9 @@
-const expect = require('chai').expect;
+// jshint ignore: start
+const chai = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+chai.use(sinonChai);
+const expect = chai.expect;
 const httpMocks = require('node-mocks-http');
 
 const deps = {};
@@ -64,4 +69,63 @@ describe('bookController', () => {
         });
 
     });
+
+    describe('libCallbackCallerString', () => {
+        it('should exist', function () {
+            expect(bookController).to.respondTo('libCallbackCallerString');
+        });
+
+        it('should throw an exception if no callback is supplied', function () {
+            expect(() => {
+                bookController.libCallbackCallerString()
+            }).to.throw('Callback required')
+        });
+
+        // Similar-ish looking tests here to provide a wide variety as templates for reuse
+        it('should call my callback', function () {
+            const myCallback = sinon.spy();
+            bookController.libCallbackCallerString(myCallback);
+
+            expect(myCallback).to.have.been.called;
+        });
+
+        it('should call my callback with an expected string', function () {
+            const myCallback = sinon.spy();
+            bookController.libCallbackCallerString(myCallback);
+
+            expect(myCallback).to.have.been.calledWith('hello');
+        });
+    });
+
+    describe('libCallbackCallerJSON', () => {
+        it('should exist', function () {
+            expect(bookController).to.respondTo('libCallbackCallerJSON');
+        });
+
+        it('should throw an exception if no callback is supplied', function () {
+            expect(() => {
+                bookController.libCallbackCallerJSON()
+            }).to.throw('Callback required')
+        });
+
+        it('should call my callback', function () {
+            const myCallback = sinon.spy();
+            bookController.libCallbackCallerJSON(myCallback);
+
+            expect(myCallback).to.have.been.called;
+        });
+
+        it('should call my callback with an expected object structure', function () {
+            const myCallback = sinon.spy();
+            bookController.libCallbackCallerJSON(myCallback);
+
+            expect(myCallback).to.have.been.calledWithExactly({
+                a: 'b',
+                c: 'd'
+            });
+        });
+
+
+    });
+
 });
