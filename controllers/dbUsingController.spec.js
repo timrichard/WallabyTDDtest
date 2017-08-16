@@ -5,21 +5,21 @@ const sinonChai = require('sinon-chai');
 chai.use(sinonChai);
 const expect = chai.expect;
 const httpMocks = require('node-mocks-http');
+const EventEmitter = require('events').EventEmitter;
 
 const knex = require('knex');
-// const mockDB = require('mock-knex');
+const mockDB = require('mock-knex');
 
 const db = knex({
     client: 'pg'
 });
 
 
-let req, res, dbUsingController, mockDB, tracker;
+let req, res, dbUsingController, tracker;
 
 before(function () {
     const deps = {db};
     dbUsingController = require('./dbUsingController')(deps);
-    mockDB = require('mock-knex');
     mockDB.mock(db);
 });
 
@@ -30,7 +30,7 @@ after(function () {
 describe('simple SQL methods', () => {
     beforeEach(function () {
         req = httpMocks.createRequest();
-        res = httpMocks.createResponse({eventEmitter: require('events').EventEmitter});
+        res = httpMocks.createResponse({eventEmitter: EventEmitter});
         tracker = mockDB.getTracker();
         tracker.install();
     });
