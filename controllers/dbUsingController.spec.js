@@ -37,8 +37,8 @@ describe('simple SQL methods', () => {
     });
 
     afterEach(function () {
-        mockDB.unmock(db);
         tracker.uninstall();
+        mockDB.unmock(db);
     });
 
     it('should perform simple first select and get one row back', function (done) {
