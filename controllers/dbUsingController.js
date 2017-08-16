@@ -18,7 +18,7 @@ const dbUsingController = (deps) => {
             .first()
             .then((row) => {
                 console.log(row);
-                return res.sendStatus(200);
+                return res.sendStatus(201);
             });
     }
 
@@ -27,14 +27,14 @@ const dbUsingController = (deps) => {
             .select()
             .then((rows) => {
                 console.log(rows);
-                return res.sendStatus(200);
+                return res.sendStatus(202);
             });
     }
 
     function simpleStoredProcedure(req, res) {
         deps.db.raw('BEGIN MY.STORED.PROCEDURE(?, ?, ?); END;')
             .then((result) => {
-                    res.sendStatus(200);
+                    res.sendStatus(203);
                 }
             );
     }

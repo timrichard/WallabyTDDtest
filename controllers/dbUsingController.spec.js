@@ -22,11 +22,9 @@ before(function () {
     lodash.toLower = sinon.stub();
     deps = {db, lodash};
     dbUsingController = require('./dbUsingController')(deps);
-    mockDB.mock(db);
 });
 
 after(function () {
-    mockDB.unmock(db);
 });
 
 describe('simple SQL methods', () => {
@@ -34,10 +32,12 @@ describe('simple SQL methods', () => {
         req = httpMocks.createRequest();
         res = httpMocks.createResponse({eventEmitter: EventEmitter});
         tracker = mockDB.getTracker();
+        mockDB.mock(db);
         tracker.install();
     });
 
     afterEach(function () {
+        mockDB.unmock(db);
         tracker.uninstall();
     });
 
@@ -51,7 +51,7 @@ describe('simple SQL methods', () => {
         });
         dbUsingController.simpleSelectOneRow(req, res);
         res.on('end', function () {
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(201);
             done();
         });
     });
@@ -72,7 +72,7 @@ describe('simple SQL methods', () => {
         });
         dbUsingController.simpleSelectMultiRows(req, res);
         res.on('end', function () {
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(202);
             done();
         });
     });
@@ -84,7 +84,7 @@ describe('simple SQL methods', () => {
         });
         dbUsingController.simpleStoredProcedure(req, res);
         res.on('end', function () {
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(203);
             done();
         });
     });
