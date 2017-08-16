@@ -28,12 +28,12 @@ describe('all DB controller methods', () => {
     after(function () {
     });
 
-    beforeEach(function(){
+    beforeEach(function () {
         req = httpMocks.createRequest();
         res = httpMocks.createResponse({eventEmitter: EventEmitter});
     });
 
-    afterEach(function(){
+    afterEach(function () {
     });
 
     describe('all methods that use the mock DB', () => {
@@ -95,6 +95,35 @@ describe('all DB controller methods', () => {
                 done();
             });
         });
+
+        it('should let me prepare fixtures for a sequence of queries in one method', function (done) {
+            const queryChain = [
+                (query) => {
+                    expect(query.method).to.equal('select');
+                    query.response({'a': 'b'});
+                },
+                (query) => {
+                    expect(query.method).to.equal('update');
+                    query.response({'c': 'd'});
+                },
+                (query) => {
+                    expect(query.method).to.equal('insert');
+                    query.response({'e': 'f'});
+                }
+            ];
+
+            tracker.on('query', (query) => {
+                queryChain.shift().call(this, query);
+            });
+
+            dbUsingController.multipleQueries(req, res);
+
+            res.on('end', function() {
+                expect(res.statusCode).to.equal(204);
+                done();
+            });
+        });
+
     });
 
     describe('all methods that just demo stubbing', () => {

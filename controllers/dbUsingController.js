@@ -4,12 +4,11 @@ const dbUsingController = (deps) => {
 
     // Demo methods that use the QueryBuilder in different ways
 
-    console.log(deps.lodash.toLower('REPLACE_ME_LOWER_CASE'));
-
     return {
         simpleSelectOneRow,
         simpleSelectMultiRows,
         simpleStoredProcedure,
+        multipleQueries,
         utilityUsesStubFixture
     };
 
@@ -34,9 +33,28 @@ const dbUsingController = (deps) => {
     function simpleStoredProcedure(req, res) {
         deps.db.raw('BEGIN MY.STORED.PROCEDURE(?, ?, ?); END;')
             .then((result) => {
-                    res.sendStatus(203);
+                    return res.sendStatus(203);
                 }
             );
+    }
+
+    function multipleQueries(req, res) {
+        const resultArray = [];
+        deps.db.from('faketable')
+            .select('fakecolumn')
+            .then((row) => {
+                resultArray.push(row);
+                return deps.db.update('a', 'b');
+            })
+            .then((row) => {
+                resultArray.push(row);
+                return deps.db.insert('a', 'b');
+            })
+            .then((row) => {
+                resultArray.push(row);
+                console.log(resultArray);
+                return res.sendStatus(204);
+            });
     }
 
     function utilityUsesStubFixture(inputString) {
