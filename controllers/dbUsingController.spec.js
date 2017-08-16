@@ -18,80 +18,89 @@ const lodash = {};
 
 let req, res, dbUsingController, deps, tracker;
 
-before(function () {
-    lodash.toLower = sinon.stub();
-    deps = {db, lodash};
-    dbUsingController = require('./dbUsingController')(deps);
-});
+describe('all DB controller methods', () => {
+    before(function () {
+        lodash.toLower = sinon.stub();
+        deps = {db, lodash};
+        dbUsingController = require('./dbUsingController')(deps);
+    });
 
-after(function () {
-});
+    after(function () {
+    });
 
-describe('simple SQL methods', () => {
-    beforeEach(function () {
+    beforeEach(function(){
         req = httpMocks.createRequest();
         res = httpMocks.createResponse({eventEmitter: EventEmitter});
-        tracker = mockDB.getTracker();
-        mockDB.mock(db);
-        tracker.install();
     });
 
-    afterEach(function () {
-        tracker.uninstall();
-        mockDB.unmock(db);
+    afterEach(function(){
     });
 
-    it('should perform simple first select and get one row back', function (done) {
-        tracker.on('query', (query) => {
-            expect(query.method).to.equal('first');
-            query.response({
-                fieldA: 'A',
-                fieldB: 'B'
-            });
+    describe('all methods that use the mock DB', () => {
+        beforeEach(function () {
+            tracker = mockDB.getTracker();
+            mockDB.mock(db);
+            tracker.install();
         });
-        dbUsingController.simpleSelectOneRow(req, res);
-        res.on('end', function () {
-            expect(res.statusCode).to.equal(201);
-            done();
-        });
-    });
 
-    it('should perform a simple select and get multi rows back', function (done) {
-        tracker.on('query', (query) => {
-            expect(query.method).to.equal('select');
-            query.response([
-                {
+        afterEach(function () {
+            tracker.uninstall();
+            mockDB.unmock(db);
+        });
+
+        it('should perform simple first select and get one row back', function (done) {
+            tracker.on('query', (query) => {
+                expect(query.method).to.equal('first');
+                query.response({
                     fieldA: 'A',
                     fieldB: 'B'
-                },
-                {
-                    fieldA: 'C',
-                    fieldB: 'D'
-                }
-            ]);
+                });
+            });
+            dbUsingController.simpleSelectOneRow(req, res);
+            res.on('end', function () {
+                expect(res.statusCode).to.equal(201);
+                done();
+            });
         });
-        dbUsingController.simpleSelectMultiRows(req, res);
-        res.on('end', function () {
-            expect(res.statusCode).to.equal(202);
-            done();
+
+        it('should perform a simple select and get multi rows back', function (done) {
+            tracker.on('query', (query) => {
+                expect(query.method).to.equal('select');
+                query.response([
+                    {
+                        fieldA: 'A',
+                        fieldB: 'B'
+                    },
+                    {
+                        fieldA: 'C',
+                        fieldB: 'D'
+                    }
+                ]);
+            });
+            dbUsingController.simpleSelectMultiRows(req, res);
+            res.on('end', function () {
+                expect(res.statusCode).to.equal(202);
+                done();
+            });
+        });
+
+        it('should let me execute a raw query to trigger a stored procedure', function (done) {
+            tracker.on('query', (query) => {
+                expect(query.method).to.equal('raw');
+                query.response(true);
+            });
+            dbUsingController.simpleStoredProcedure(req, res);
+            res.on('end', function () {
+                expect(res.statusCode).to.equal(203);
+                done();
+            });
         });
     });
 
-    it('should let me execute a raw query to trigger a stored procedure', function (done) {
-        tracker.on('query', (query) => {
-            expect(query.method).to.equal('raw');
-            query.response(true);
-        });
-        dbUsingController.simpleStoredProcedure(req, res);
-        res.on('end', function () {
-            expect(res.statusCode).to.equal(203);
-            done();
+    describe('all methods that just demo stubbing', () => {
+        it('should return a fixture when I call a utility function that uses a stubbed dependency', function () {
+            lodash.toLower.withArgs('hello').returns('world');
+            expect(dbUsingController.utilityUsesStubFixture('hello')).to.equal('world');
         });
     });
-
-    it('should return a fixture when I call a utility function that uses a stubbed dependency', function () {
-        lodash.toLower.withArgs('hello').returns('world');
-        expect(dbUsingController.utilityUsesStubFixture('hello')).to.equal('world');
-    });
-
 });
