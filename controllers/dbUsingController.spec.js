@@ -14,11 +14,13 @@ const db = knex({
     client: 'pg'
 });
 
+const lodash = {};
 
-let req, res, dbUsingController, tracker;
+let req, res, dbUsingController, deps, tracker;
 
 before(function () {
-    const deps = {db};
+    lodash.toLower = sinon.stub();
+    deps = {db, lodash};
     dbUsingController = require('./dbUsingController')(deps);
     mockDB.mock(db);
 });
@@ -49,7 +51,7 @@ describe('simple SQL methods', () => {
         });
         dbUsingController.simpleSelectOneRow(req, res);
         res.on('end', function () {
-            expect(res.statusCode).to.equal(101);
+            expect(res.statusCode).to.equal(200);
             done();
         });
     });
@@ -70,7 +72,7 @@ describe('simple SQL methods', () => {
         });
         dbUsingController.simpleSelectMultiRows(req, res);
         res.on('end', function () {
-            expect(res.statusCode).to.equal(102);
+            expect(res.statusCode).to.equal(200);
             done();
         });
     });
@@ -82,9 +84,14 @@ describe('simple SQL methods', () => {
         });
         dbUsingController.simpleStoredProcedure(req, res);
         res.on('end', function () {
-            expect(res.statusCode).to.equal(103);
+            expect(res.statusCode).to.equal(200);
             done();
         });
+    });
+
+    it('should return a fixture when I call a utility function that uses a stubbed dependency', function () {
+        lodash.toLower.withArgs('hello').returns('world');
+        expect(dbUsingController.utilityUsesStubFixture('hello')).to.equal('world');
     });
 
 });
