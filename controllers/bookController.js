@@ -1,12 +1,25 @@
 'use strict';
 
-const bookController = (deps) => {
+module.exports = bookController;
+
+/*
+    In more sophisticated modules, dependencies would be
+    injected like
+    function bookController({knex, oracle, redis})
+ */
+function bookController(deps) {
     return {
+        hello,
         get,
         post,
         libCallbackCallerString,
         libCallbackCallerJSON
     };
+
+    function hello (req, res) {
+        console.log('Hello called');
+        res.sendStatus(418);
+    }
 
     function get (req, res) {
         res.sendStatus(okStatus());
@@ -47,7 +60,4 @@ const bookController = (deps) => {
             c: 'd'
         });
     }
-
-};
-
-module.exports = bookController;
+}

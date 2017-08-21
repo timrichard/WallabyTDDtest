@@ -1,6 +1,8 @@
 'use strict';
 
-const dbUsingController = (deps) => {
+module.exports = dbUsingController;
+
+function dbUsingController({knex, _}) {
 
     // Demo methods that use the QueryBuilder in different ways
 
@@ -13,7 +15,7 @@ const dbUsingController = (deps) => {
     };
 
     function simpleSelectOneRow(req, res) {
-        deps.db.table('faketable')
+        knex.table('faketable')
             .first()
             .then((row) => {
                 console.log(row);
@@ -22,7 +24,7 @@ const dbUsingController = (deps) => {
     }
 
     function simpleSelectMultiRows(req, res) {
-        deps.db.table('faketable')
+        knex.table('faketable')
             .select()
             .then((rows) => {
                 console.log(rows);
@@ -31,7 +33,7 @@ const dbUsingController = (deps) => {
     }
 
     function simpleStoredProcedure(req, res) {
-        deps.db.raw('BEGIN MY.STORED.PROCEDURE(?, ?, ?); END;')
+        knex.raw('BEGIN MY.STORED.PROCEDURE(?, ?, ?); END;')
             .then((result) => {
                     return res.sendStatus(203);
                 }
@@ -40,15 +42,15 @@ const dbUsingController = (deps) => {
 
     function multipleQueries(req, res) {
         const resultArray = [];
-        deps.db.from('faketable')
+        knex.from('faketable')
             .select('fakecolumn')
             .then((row) => {
                 resultArray.push(row);
-                return deps.db.update('a', 'b');
+                return knex.update('a', 'b');
             })
             .then((row) => {
                 resultArray.push(row);
-                return deps.db.insert('a', 'b');
+                return knex.insert('a', 'b');
             })
             .then((row) => {
                 resultArray.push(row);
@@ -58,8 +60,7 @@ const dbUsingController = (deps) => {
     }
 
     function utilityUsesStubFixture(inputString) {
-        return deps.lodash.toLower(inputString);
+        return _.toLower(inputString);
     }
-};
+}
 
-module.exports = dbUsingController;

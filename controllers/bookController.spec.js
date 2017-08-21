@@ -9,8 +9,8 @@ const httpMocks = require('node-mocks-http');
 let req, res, deps, bookController;
 
 beforeEach(function () {
-    deps = {};
-    bookController = require('./bookController')(deps);
+    deps = {runner: 'tests'};
+    bookController = require('./bookController')({});
     req = httpMocks.createRequest();
     res = httpMocks.createResponse();
 });

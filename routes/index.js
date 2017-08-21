@@ -1,17 +1,20 @@
-const express = require('express');
-const router = express.Router();
+module.exports = mainRoutes;
 
-const deps = {};
+function mainRoutes({bookController}) {
+    const express = require('express');
+    const router = express.Router();
 
-const bookController = require('../controllers/bookController')(deps);
+    /* GET home page. */
+    router.get('/', function (req, res, next) {
+        res.render('index', {title: 'Express'});
+    });
 
-/* GET home page. */
-router.get('/', function (req, res, next) {
-    res.render('index', {title: 'Express'});
-});
+    router.route('/hello')
+        .get(bookController.hello);
 
-router.route('/book')
-    .get(bookController.get)
-    .post(bookController.post);
+    router.route('/book')
+        .get(bookController.get)
+        .post(bookController.post);
 
-module.exports = router;
+    return router;
+}

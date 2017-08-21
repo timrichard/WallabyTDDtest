@@ -8,21 +8,23 @@ const httpMocks = require('node-mocks-http');
 const EventEmitter = require('events').EventEmitter;
 
 const knex = require('knex');
-const mockDB = require('mock-knex');
+const mockKnex = require('mock-knex');
 
-const db = knex({
+const mockDB = knex({
     client: 'pg'
 });
 
 const lodash = {};
 
-let req, res, dbUsingController, deps, tracker;
+let req, res, dbUsingController, tracker;
 
 describe('all DB controller methods', () => {
     before(function () {
         lodash.toLower = sinon.stub();
-        deps = {db, lodash};
-        dbUsingController = require('./dbUsingController')(deps);
+        dbUsingController = require('./dbUsingController')({
+            knex: mockDB,
+            _: lodash
+        });
     });
 
     after(function () {
@@ -38,14 +40,14 @@ describe('all DB controller methods', () => {
 
     describe('all methods that use the mock DB', () => {
         beforeEach(function () {
-            tracker = mockDB.getTracker();
-            mockDB.mock(db);
+            tracker = mockKnex.getTracker();
+            mockKnex.mock(mockDB);
             tracker.install();
         });
 
         afterEach(function () {
             tracker.uninstall();
-            mockDB.unmock(db);
+            mockKnex.unmock(mockDB);
         });
 
         it('should perform simple first select and get one row back', function (done) {
